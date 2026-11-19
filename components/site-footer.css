@@ -1,0 +1,52 @@
+/* Footer: the email, and a button that copies it with a short "Copied" status */
+
+.footer-mail{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 28px;
+    margin: 12px 0 24px;
+}
+
+.footer-mail .footer-email{
+    margin: 0;
+}
+
+.copy{
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.copy-email{
+    min-height: 44px;
+    padding: 8px 16px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font: inherit;
+    color: var(--text);
+    background: none;
+    cursor: pointer;
+    transition: border-color 0.12s ease;
+}
+
+.copy-email:hover{
+    border-color: var(--text-faint);
+}
+
+/* Opacity only, so the message stays in the accessibility tree and is announced */
+.copy-status{
+    min-width: 6.5em;
+    color: var(--text-muted);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.copy-status:not(:empty){
+    opacity: 1;
+}
+
+/* Home already has GitHub, LinkedIn and Resume in the hero */
+body:has(main > .intro) .footer .link-row{
+    display: none;
+}

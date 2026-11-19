@@ -1,81 +1,79 @@
-/* eslint-disable @next/next/no-img-element */
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
-import { links } from "@/data/content";
+import Link from "next/link";
+import { Fragment } from "react";
+import FinePrint, { Fold } from "@/components/FinePrint";
+import Page from "@/components/Page";
+import { moreSkills, projects, skills } from "@/data/content";
+import "./about.css";
 
 export const metadata: Metadata = { title: "About" };
 
-const facts = [
-  ["2200", "Peak chess rating on Chess.com"],
-  ["11th", "In the world at the International MaRRs Spell Bee"],
-  ["State level", "Debate competitions won in school"],
-  ["97.5%", "In Grade 10"],
-  ["8.5", "GPA in my first semester at VIT"],
-  ["1500+", "Papers on the site I help build"],
-  ["11K+", "Students using FFCS-inator, which I helped revamp"],
-];
+const titleOf = new Map(projects.map((p) => [p.slug, p.title]));
+// Each flight starts on the row of the previous flight's last line
+const starts = skills.map((_, i) => skills.slice(0, i).reduce((n, f) => n + f.items.length, 0));
+const rest = new Intl.ListFormat("en-GB", { type: "conjunction" }).format(moreSkills);
 
 export default function AboutPage() {
   return (
-    <main className="page">
-      <div className="container">
-        <h1 className="page-title rise">
-          About <em>me</em>
-        </h1>
-        <div className="about-grid">
-          <div>
-            <p>
-              I&apos;m Aiden, a Computer Science student at VIT Vellore and a frontend developer at CodeChef-VIT,
-              working on Papers and FFCS-inator.
-            </p>
-            <p>
-              Before code there was chess, debate and spelling bees. They taught me to work through hard problems,
-              explain an idea under pressure and sweat the details.
-            </p>
-            <p>
-              I&apos;m looking for a frontend internship. The fastest way to reach me is{" "}
-              <a href={`mailto:${links.email}`}>{links.email}</a>.
-            </p>
-          </div>
-          <figure className="polaroid">
-            <img src="/profile.jpeg" alt="Aiden Trindade" />
-            <figcaption className="hand">that&apos;s me</figcaption>
-          </figure>
-        </div>
-        <dl className="facts">
-          {facts.map(([value, label]) => (
-            <div key={value}>
-              <dt>{value}</dt>
-              <dd>{label}</dd>
-            </div>
+    <Page className="page wrap about-page">
+      <h1 className="sr-only">About Aiden Trindade</h1>
+
+      <FinePrint>
+        I’m Aiden, a{" "}
+        <Fold id="student" label="computer science student">
+          at VIT Vellore; 8.5 GPA in my first semester
+        </Fold>{" "}
+        who builds{" "}
+        <Fold id="codechef" label="the frontend of CodeChef-VIT’s tools for students">
+          <Link href="/work/ffcs-inator">FFCS-inator</Link> builds clash-free timetables for 11K+ students; for v2.0.1 I
+          built its course selection screen and fixed embedded labs showing up as “undefined”.{" "}
+          <Link href="/work/papers">Papers</Link> holds 1500+ past exam papers; I work on its interface and fix bugs
+        </Fold>
+        . I learned on{" "}
+        <Fold id="learned" label="plain HTML, CSS and JavaScript">
+          <Link href="/work/pet">PET</Link>, an expense tracker with SVG charts drawn by hand and no framework, works
+          offline. Then <Link href="/work/pretty-sure">Pretty Sure</Link>, a prediction journal in React on Supabase and
+          PostgreSQL
+        </Fold>{" "}
+        and now mostly write React and Next.js with TypeScript. I{" "}
+        <Fold id="yash" label="interned at Yash Technologies">
+          in Pune, on an AI model that negotiates prices between buyers and vendors; agreed prices feed SAP-based ERP
+          workflows
+        </Fold>{" "}
+        and won a state-level debate. I’m looking for an internship for summer 2027.
+      </FinePrint>
+
+      <section className="about-skills" aria-labelledby="skills-heading">
+        <h2 id="skills-heading">Skills</h2>
+        <ol className="stair">
+          {skills.map(({ items, shownIn }, i) => (
+            <li key={shownIn[0]} className="flight" style={{ "--start": starts[i] } as CSSProperties}>
+              <ul>
+                {items.map((skill) => (
+                  <li key={skill}>{skill}</li>
+                ))}
+              </ul>
+              {/* The span keeps "in " and the link in one flex item, so the space survives */}
+              <p className="flight-proof">
+                <span>
+                  in{" "}
+                  {shownIn.map((slug, j) => (
+                    <Fragment key={slug}>
+                      {j > 0 && " and "}
+                      <Link href={`/work/${slug}`}>{titleOf.get(slug)}</Link>
+                    </Fragment>
+                  ))}
+                </span>
+              </p>
+            </li>
           ))}
-        </dl>
-        <section className="job">
-          <p className="hand job-note">where it got real</p>
-          <div className="job-head">
-            <h2>Yash Tech</h2>
-            <span>AI Intern · Pune</span>
-          </div>
-          <p className="job-lead">
-            Price negotiation is slow, and it rarely comes down to numbers alone. We built an AI model that sits between
-            the vendor and the seller and works out a price both sides can agree on.
-          </p>
-          <ul className="job-points">
-            <li>
-              <strong>It thinks like a negotiator.</strong> The model weighs real-life context, like how many years two
-              companies have worked together, instead of just comparing quotes.
-            </li>
-            <li>
-              <strong>It plugs into real workflows.</strong> The agreed price feeds into enterprise resource planning on
-              SAP, cutting out the back-and-forth that slows procurement down.
-            </li>
-            <li>
-              <strong>It taught me how companies run.</strong> I saw how software fits around business rules and
-              long-standing relationships, not the other way round.
-            </li>
-          </ul>
-          <p className="work-tags">AI, price negotiation, SAP, ERP</p>
-        </section>
-      </div>
-    </main>
+        </ol>
+        <p className="stair-rest">
+          <span className="muted">I’ve also used </span>
+          {rest}.
+        </p>
+      </section>
+    </Page>
   );
 }

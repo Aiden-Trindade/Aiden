@@ -1,0 +1,374 @@
+/* Work: the /work index of bands, and each project's page */
+
+/* /work. Each project opens with a band of its real first screen at 1:1, edge to edge:
+   the four products' own colours cut across the slate. Under it, what I did on it.
+   The bands live outside .wrap, so they span the page without any vw maths */
+
+.wi-lead{
+    max-width: 44ch;
+    margin-bottom: clamp(28px, 4vh, 44px);
+    font-size: var(--step-1);
+    line-height: 1.45;
+    color: var(--text-muted);
+    text-wrap: pretty;
+}
+
+.wi{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* Never scaled: the strip sits at its real size and narrow screens look at the part
+   `--x` points to. Past 1440px the band carries on in the strip's own edge colour */
+.wi-band{
+    position: relative;
+    display: block;
+    height: 160px;
+    overflow: hidden;
+    background: var(--edge);
+}
+
+.wi-band img{
+    position: absolute;
+    top: 0;
+    left: calc((100% - 1440px) * var(--x));
+    width: 1440px;
+    height: 160px;
+    max-width: none;
+}
+
+/* The keyboard reaches the name, and its focus shows on the band too */
+.wi-band::after{
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.wi li:has(.wi-name a:focus-visible) .wi-band::after{
+    box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.wi-row{
+    display: grid;
+    gap: 4px 48px;
+    padding-block: 20px 40px;
+}
+
+.wi-name{
+    font-size: var(--step-2);
+    letter-spacing: -0.02em;
+}
+
+.wi-name a{
+    text-decoration: underline 2px transparent;
+    text-underline-offset: 6px;
+    transition: text-decoration-color 0.15s ease;
+}
+
+@media (hover: hover){
+    .wi li:has(a:hover) .wi-name a{
+        text-decoration-color: var(--text-faint);
+    }
+}
+
+.wi-did{
+    max-width: 52ch;
+    color: var(--text-muted);
+    text-wrap: pretty;
+}
+
+@media (min-width: 900px){
+    .wi-row{
+        grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+        align-items: baseline;
+    }
+}
+
+/* Developing, once per visit: each band shows as coarse pixel blocks, then finer ones,
+   then its real pixels. Hard cuts, no easing or fades; bands go 90ms apart top to bottom.
+   The pixel layers stay hidden without the data-develop flag (no script, reduced motion,
+   or already seen this visit), so the real strip simply shows */
+.wi-m{
+    visibility: hidden;
+    image-rendering: pixelated;
+}
+
+@media (prefers-reduced-motion: no-preference){
+    .wi[data-develop] .wi-m{
+        visibility: visible;
+    }
+
+    .wi[data-develop][data-go] .wi-m40{
+        animation: wi-cut 0s calc(450ms + var(--i) * 90ms) both;
+    }
+
+    .wi[data-develop][data-go] .wi-m10{
+        animation: wi-cut 0s calc(610ms + var(--i) * 90ms) both;
+    }
+}
+
+@keyframes wi-cut{
+    to{ visibility: hidden; }
+}
+
+
+/* A project's page */
+
+/* The name the home row grew into, over the sentence that proves the project is real */
+.case-title{
+    display: grid;
+    gap: 14px;
+    margin-bottom: 48px;
+}
+
+.case-name{
+    justify-self: start;
+    font-size: var(--step-0);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0;
+    color: var(--text-muted);
+    font-variation-settings: "wdth" 100, "opsz" 14;
+}
+
+.case-headline{
+    max-width: 18ch;
+    font-size: clamp(34px, 5.2vw, 76px);
+    font-weight: 650;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+}
+
+/* Facts: each label over a hairline over its value */
+.case-facts{
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px clamp(24px, 3vw, 48px);
+    margin: 0 0 clamp(56px, 9vh, 96px);
+}
+
+.case-facts dt{
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+    color: var(--text-faint);
+}
+
+.case-facts dd{
+    margin: 0;
+    padding-top: 10px;
+}
+
+.case-facts .link-row a{
+    padding-block: 0;
+}
+
+@media (max-width: 640px){
+    .case-facts{
+        grid-template-columns: 1fr;
+    }
+}
+
+/* The camera. Below 1200px the screenshot is a plain figure over the text; taller
+   screens pin it as a band, and wide ones pin it beside the text */
+
+.cam-pin{
+    margin-bottom: 40px;
+}
+
+.cam-frame{
+    position: relative;
+    margin: 0;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background-color: var(--bg-raised);
+    box-shadow: 0 30px 80px var(--shadow);
+    container-type: inline-size;
+}
+
+.cam-frame img{
+    width: 100%;
+    transform-origin: 0 0;
+    transform: translate(calc(var(--l) * var(--s) * -100%), calc(var(--t) * var(--s) * -100%)) scale(var(--s));
+}
+
+/* Viewfinder corners. Each moves on its own, so none ever stretches. Ink with a pale
+   halo reads on light and dark screenshots alike; accent marks my own work */
+.cam-corner{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 14px;
+    height: 14px;
+    overflow: visible;
+    opacity: 0;
+    color: #14171d;
+    fill: none;
+    stroke-linecap: square;
+}
+
+.cam-corner path:first-child{
+    stroke: #ebe8e2;
+    stroke-width: 3.5;
+}
+
+.cam-corner path:last-child{
+    stroke: currentColor;
+    stroke-width: 1.5;
+}
+
+/* The frame is 16:10, so its height is 62.5% of its width */
+.cam-tl{
+    translate: calc(var(--x1) * 100cqw) calc(var(--y1) * 62.5cqw);
+}
+
+.cam-tr{
+    rotate: 90deg;
+    translate: calc(var(--x2) * 100cqw - 14px) calc(var(--y1) * 62.5cqw);
+}
+
+.cam-br{
+    rotate: 180deg;
+    translate: calc(var(--x2) * 100cqw - 14px) calc(var(--y2) * 62.5cqw - 14px);
+}
+
+.cam-bl{
+    rotate: 270deg;
+    translate: calc(var(--x1) * 100cqw) calc(var(--y2) * 62.5cqw - 14px);
+}
+
+.cam-frame:not([data-state="full"]) .cam-corner{
+    opacity: 1;
+}
+
+.cam-frame[data-state="mine"] .cam-corner{
+    color: var(--accent);
+}
+
+.cam-caption{
+    display: grid;
+    min-height: 1.6em;
+    margin-top: 12px;
+    font-size: 16px;
+    color: var(--text-muted);
+}
+
+.cam-caption span{
+    grid-area: 1 / 1;
+    opacity: 0;
+}
+
+.cam-caption [data-on]{
+    opacity: 1;
+}
+
+.cam-caption span::before{
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 10px;
+    border-top: 1.5px solid var(--accent);
+    border-left: 1.5px solid var(--accent);
+    vertical-align: 0.1em;
+}
+
+/* The image moves first, then the frame catches up. A move that starts before the last
+   one ends picks up from wherever the camera is. Reduced motion: every change is a cut */
+@media (prefers-reduced-motion: no-preference){
+    .cam-frame img{
+        transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .cam-corner{
+        transition: translate 0.6s cubic-bezier(0.22, 1, 0.36, 1) 80ms, opacity 0.2s ease 80ms, color 0.2s ease;
+    }
+
+    .cam-caption span{
+        transition: opacity 0.2s ease;
+    }
+}
+
+.cam-steps{
+    display: grid;
+    gap: 24vh;
+}
+
+.cam-steps h2{
+    margin-bottom: 10px;
+    font-size: var(--step-2);
+    letter-spacing: -0.02em;
+}
+
+.cam-steps p{
+    max-width: 68ch;
+    color: var(--text-muted);
+    text-wrap: pretty;
+}
+
+/* Tall, narrow screens: a band pinned to the top while the case is read under it */
+@media (max-width: 1199px) and (min-height: 640px){
+    .cam-pin{
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        margin-inline: calc(var(--gutter) * -1);
+        padding: 12px var(--gutter) 8px;
+        background-color: var(--bg);
+    }
+
+    .cam-steps{
+        padding-bottom: 12vh;
+    }
+
+    /* At most two fifths of the screen, so the text keeps the rest */
+    .cam-frame,
+    .cam-caption{
+        max-width: calc(40svh * 1.6);
+    }
+}
+
+/* Short screens: no camera, just the screenshot */
+@media (max-width: 1199px) and (max-height: 639px){
+    .cam-caption{
+        display: none;
+    }
+}
+
+@media (min-width: 1200px){
+    .cam{
+        display: grid;
+        grid-template-columns: minmax(0, 30rem) minmax(0, 1fr);
+        gap: clamp(48px, 5vw, 80px);
+        align-items: start;
+    }
+
+    .cam-pin{
+        position: sticky;
+        top: clamp(24px, 4vh, 48px);
+        grid-column: 2;
+        grid-row: 1;
+        margin: 0;
+    }
+
+    .cam-steps{
+        grid-column: 1;
+        grid-row: 1;
+        padding-bottom: 8vh;
+    }
+}
+
+/* The way on: the next project's name and its sentence, in text */
+.next .next-headline{
+    max-width: 36ch;
+    margin-top: 6px;
+    font-size: var(--step-1);
+    line-height: 1.35;
+    color: var(--text-muted);
+    text-wrap: balance;
+}

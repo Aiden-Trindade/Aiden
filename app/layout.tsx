@@ -1,33 +1,44 @@
 import type { Metadata } from "next";
-import { Caveat, Instrument_Sans, Instrument_Serif } from "next/font/google";
+import localFont from "next/font/local";
+import EvalBar from "@/components/EvalBar";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
+import { getPosts } from "@/lib/blog";
 import "./globals.css";
 
-const serif = Instrument_Serif({ variable: "--font-serif", subsets: ["latin"], weight: "400", style: ["normal", "italic"] });
-const sans = Instrument_Sans({ variable: "--font-sans", subsets: ["latin"] });
-const hand = Caveat({ variable: "--font-hand", subsets: ["latin"], weight: ["500", "700"] });
+// One family for everything. Its width axis lets the name set wide and the body set normal.
+// Self-hosted (the latin subset of the variable font), so builds don't depend on Google Fonts
+const bricolage = localFont({
+  src: "./fonts/bricolage-grotesque-latin.woff2",
+  variable: "--font",
+  weight: "200 800",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: { default: "Aiden Trindade", template: "%s · Aiden Trindade" },
+  title: { default: "Aiden Trindade", template: "%s – Aiden Trindade" },
   description:
-    "Aiden Trindade, Computer Science Engineering student at VIT Vellore. Frontend developer at CodeChef-VIT on Papers and FFCS-inator.",
+    "Aiden Trindade studies computer science at VIT Vellore and builds the frontend for FFCS-inator and Papers at CodeChef-VIT.",
 };
 
-// Applies the saved theme before the page paints, so there is no flash of the wrong theme,
-// and marks that JS is running, so fade-in content is only hidden when it can be revealed
-const themeScript = `document.documentElement.classList.add("js");try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}`;
+// Applies the saved theme before the page paints, so there is no flash of the wrong theme
+const themeScript = `try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}`;
+
+// The home intro (name opening out, photo unrolling, the scribble) plays once per visit.
+// Once the scribble, its last step, has drawn, html[data-intro-seen] switches it off
+const introScript = `try{var r=document.documentElement;if(sessionStorage.getItem("intro"))r.dataset.introSeen="";else addEventListener("animationend",function f(e){if(e.animationName==="scribble"){r.dataset.introSeen="";sessionStorage.setItem("intro","1");removeEventListener("animationend",f)}})}catch(e){}`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" data-theme="dark" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script dangerouslySetInnerHTML={{ __html: themeScript + introScript }} />
       </head>
-      <body className={`${serif.variable} ${sans.variable} ${hand.variable}`}>
-        <SiteHeader />
+      <body className={bricolage.variable}>
+        <SiteHeader hasPosts={getPosts().length > 0} />
         {children}
         <SiteFooter />
+        <EvalBar />
       </body>
     </html>
   );

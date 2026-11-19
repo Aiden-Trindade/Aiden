@@ -1,0 +1,246 @@
+/* About: the page opens with one sentence instead of a title. Four phrases in it open their
+   fine print, and the sentence parts to let it in (components/FinePrint.tsx) */
+
+/* Opening a fold changes the height above whatever the reader is looking at; scroll
+   anchoring would answer that with a scroll jump in the middle of the animation */
+html:has(.about-page){
+    overflow-anchor: none;
+}
+
+.fp{
+    position: relative;
+    margin-bottom: clamp(88px, 12vw, 168px);
+}
+
+/* Read it all / Fold it up. Hidden (keeping its space) until the folds are set up, so
+   without JavaScript there is no button that does nothing */
+.fp-all{
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin: 0 0 clamp(12px, 2vw, 24px) -16px;
+    padding: 0 16px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: none;
+    font: inherit;
+    font-size: 16px;
+    line-height: 1;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 150ms, border-color 150ms;
+}
+
+.fp-all:hover{
+    color: var(--text);
+    border-color: var(--line);
+}
+
+.fp:not([data-ready]) .fp-all{
+    visibility: hidden;
+}
+
+.fp-text{
+    max-width: 21em;
+    font-size: clamp(34px, 4.6vw, 60px);
+    font-weight: 600;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    font-variation-settings: "wdth" 100, "opsz" 72;
+    text-wrap: pretty;
+    overflow-wrap: break-word;
+}
+
+/* The phrases: a dotted underline that wraps with the words, inked on hover and focus */
+.fp-trigger{
+    cursor: pointer;
+    text-decoration: underline dotted var(--text-faint);
+    text-decoration-thickness: max(2px, 0.05em);
+    text-underline-offset: 0.16em;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    -webkit-tap-highlight-color: transparent;
+    transition: text-decoration-color 150ms;
+}
+
+.fp-trigger:focus-visible{
+    text-decoration-color: var(--accent);
+}
+
+@media (hover: hover){
+    .fp-trigger:hover{
+        text-decoration-color: var(--accent);
+    }
+}
+
+.fp-fine{
+    font-size: max(1.0625rem, 0.5em);
+    font-weight: 450;
+    letter-spacing: 0;
+    color: var(--text-muted);
+    font-variation-settings: "wdth" 100, "opsz" 24;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    scroll-margin-block-start: 30vh;
+}
+
+/* hidden="until-found" hides with content-visibility, which does nothing to an inline box.
+   As an inline-block the closed fold collapses to nothing and stays findable */
+.fp-fine[hidden="until-found"]{
+    display: inline-block;
+}
+
+.fp-fine:focus{
+    outline: none;
+}
+
+/* Focused when a deep link opens it. Fine print is never accent-coloured, its ring included */
+.fp-fine:focus-visible{
+    outline: 2px solid var(--text-faint);
+    outline-offset: 3px;
+}
+
+.fp-fine a{
+    color: var(--text);
+    text-decoration: underline;
+    text-decoration-color: var(--text-faint);
+    text-underline-offset: 0.18em;
+    transition: text-decoration-color 150ms;
+}
+
+.fp-fine a:hover{
+    text-decoration-color: var(--text);
+}
+
+/* While the sentence parts, the real words are transparent and stand-ins move instead.
+   The fold being opened is the exception: it fades in for real */
+.fp[data-flipping] .fp-text,
+.fp[data-flipping] .fp-text :not(.fp-fine[data-entering], .fp-fine[data-entering] *){
+    color: transparent;
+    text-decoration-color: transparent;
+    transition: none;
+}
+
+.fp-ghosts{
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.fp-ghost{
+    position: absolute;
+    white-space: pre;
+}
+
+
+/* Skills: three flights in the order the sentence tells them. Each ends on the project
+   that shows them, level with the next flight's first skill */
+.about-skills{
+    --row: 1.25em;
+    font-size: var(--step-1);
+}
+
+@media (min-width: 720px){
+    .about-skills{
+        font-size: var(--step-2);
+    }
+}
+
+.about-skills h2{
+    margin: 0 0 clamp(20px, 3vw, 40px);
+    font-size: var(--step-3);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    font-variation-settings: "wdth" 100, "opsz" 48;
+}
+
+.stair,
+.stair ul{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.stair{
+    display: grid;
+    row-gap: var(--row);
+    line-height: var(--row);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    font-variation-settings: "wdth" 100, "opsz" 32;
+}
+
+.flight-proof{
+    margin: 0;
+    font-weight: 450;
+    color: var(--text-muted);
+}
+
+.flight-proof a{
+    position: relative;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: underline;
+    text-decoration-color: var(--text-faint);
+    text-decoration-thickness: max(1px, 0.05em);
+    text-underline-offset: 0.18em;
+    transition: text-decoration-color 150ms;
+}
+
+/* A 44px target without moving the line */
+.flight-proof a::after{
+    content: "";
+    position: absolute;
+    inset: -0.5em -0.25em;
+}
+
+@media (hover: hover){
+    .flight-proof a:hover{
+        text-decoration-color: var(--text);
+    }
+}
+
+/* Below 860px "in FFCS-inator and Papers" no longer fits its column, so the runs stack
+   flush left with a blank row between them */
+@media (min-width: 860px){
+    .stair{
+        grid-template-columns: 9em 9em minmax(0, 1fr);
+        row-gap: 0;
+        align-items: start;
+    }
+
+    .flight{
+        margin-block-start: calc(var(--row) * var(--start));
+    }
+
+    /* A short rule carries each flight's last line over to the next flight's first skill */
+    .flight:not(:last-child) .flight-proof{
+        display: flex;
+    }
+
+    .flight:not(:last-child) .flight-proof::after{
+        content: "";
+        flex: 1;
+        min-width: 1em;
+        height: 1px;
+        align-self: center;
+        margin-inline: 0.35em 0.5em;
+        translate: 0 0.08em;
+        background: color-mix(in oklab, var(--text-faint) 55%, var(--bg));
+    }
+}
+
+.stair-rest{
+    margin: var(--row) 0 0;
+    line-height: var(--row);
+    font-weight: 600;
+    color: var(--text);
+}
+
+.stair-rest .muted{
+    font-weight: 450;
+    color: var(--text-muted);
+}

@@ -1,0 +1,433 @@
+/* Now: a dated heading, three sentences, and a working copy of the FFCS-inator pencil edit
+   that opens three times at once: as shipped, then at 200 and 600 ms. Nothing moves on load */
+
+.now-head{
+    margin-bottom: clamp(28px, 4vw, 48px);
+}
+
+.now-title{
+    font-size: var(--step-3);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.03em;
+}
+
+.now-stamp{
+    margin-top: 14px;
+    color: var(--text-muted);
+}
+
+.now-body{
+    display: grid;
+    gap: 40px;
+}
+
+.now-lines p{
+    max-width: 34ch;
+    margin: 0 0 1.1em;
+    font-size: var(--step-1);
+    font-weight: 500;
+    line-height: 1.25;
+    text-wrap: pretty;
+}
+
+.now-lines p:last-child{
+    margin-bottom: 0;
+}
+
+.pencil{
+    max-width: 44rem;
+    margin: 0;
+}
+
+@media (min-width: 1100px){
+    .now-body{
+        grid-template-columns: minmax(0, 1fr) minmax(0, 44rem);
+        gap: 56px;
+        align-items: start;
+    }
+
+    .now-lines{
+        grid-area: 1 / 1;
+    }
+
+    .pencil{
+        grid-area: 1 / 2;
+    }
+
+    .now-lines p{
+        max-width: 22ch;
+        font-size: var(--step-2);
+    }
+}
+
+
+/* The mat. FFCS-inator's own colours, the same in both themes, as a screenshot would be */
+.pencil-mat{
+    --ffcs-page: #cee4e5;
+    --ffcs-card: #a7d5d7;
+    --ffcs-yellow: #ffea79;
+    --ffcs-red: #ffad93;
+    --ffcs-green: #c1ff83;
+    --ffcs-violet: #c4aff3;
+    --ffcs-faint: #4d5c5d;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 44px 24px;
+    padding: 28px 28px 32px;
+    border-radius: 28px;
+    background: var(--ffcs-page);
+    color: #000;
+    font-size: 16px;
+    line-height: 1.35;
+    letter-spacing: 0;
+    color-scheme: light;
+}
+
+.pencil-mat :focus-visible{
+    outline: 2px solid #000;
+    outline-offset: 2px;
+}
+
+.pencil-courses,
+.lane-shipped{
+    grid-column: 1 / -1;
+}
+
+.ffcs-card{
+    position: relative;
+    padding: 20px 22px 22px;
+    border: 3px solid #000;
+    border-radius: 30px;
+    background: var(--ffcs-card);
+    box-shadow: 5px 5px 0 #000;
+}
+
+.pencil-courses{
+    padding: 14px 16px;
+}
+
+/* Your Courses: one row, as FFCS-inator lays it out */
+.ffcs-row{
+    display: grid;
+    grid-template-columns: 1.25rem 82px minmax(0, 1fr) 96px 44px;
+    gap: 10px;
+    align-items: center;
+    padding: 4px 6px 4px 12px;
+    border-radius: 20px;
+    background: rgb(255 255 255 / 0.4);
+    font-size: 15px;
+}
+
+.ffcs-n{
+    text-align: right;
+}
+
+.ffcs-code{
+    font-weight: 600;
+}
+
+.ffcs-pencil{
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+}
+
+.ffcs-pencil span{
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgb(255 255 255 / 0.5);
+    transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ffcs-pencil:hover span,
+.ffcs-pencil[aria-pressed="true"] span{
+    background: var(--ffcs-violet);
+}
+
+/* A lane: its speed above the right corner, the tab over its top edge */
+.lane-ms{
+    position: absolute;
+    top: -34px;
+    right: 6px;
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.ffcs-tab{
+    position: absolute;
+    top: -26px;
+    left: 24px;
+    margin: 0;
+    padding: 5px 18px;
+    border: 2px solid #000;
+    border-radius: 14px;
+    background: var(--ffcs-yellow);
+    box-shadow: 3px 3px 0 #000;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+/* Idle and edit share one cell, so a lane never changes height */
+.lane-box{
+    display: grid;
+}
+
+.lane-box > *{
+    grid-area: 1 / 1;
+}
+
+.lane-idle,
+.lane-edit{
+    display: grid;
+    gap: 12px;
+    align-content: start;
+}
+
+.ffcs-field{
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    min-height: 44px;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 2.5px solid #000;
+    border-radius: 14px;
+    background: rgb(255 255 255 / 0.35);
+    font-weight: 500;
+}
+
+.ffcs-field > span{
+    flex: 1;
+    min-width: 0;
+    padding: 0 12px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* The chevron cell, drawn as a border-built arrow */
+.ffcs-field > i{
+    position: relative;
+    align-self: stretch;
+    width: 40px;
+    flex: none;
+    border-left: 2.5px solid #000;
+}
+
+.ffcs-field > i::before{
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: 8px;
+    height: 8px;
+    margin: auto;
+    border-right: 2.5px solid #000;
+    border-bottom: 2.5px solid #000;
+    rotate: 45deg;
+    translate: 0 -2px;
+}
+
+.ffcs-field.is-muted > span{
+    color: var(--ffcs-faint);
+}
+
+.ffcs-field.is-locked{
+    cursor: not-allowed;
+}
+
+.ffcs-chips{
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    padding: 0 10px;
+}
+
+.ffcs-chip{
+    display: inline-flex;
+    align-items: center;
+    height: 26px;
+    padding: 0 8px;
+    border: 2px solid #000;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.ffcs-chip[data-on],
+.ffcs-slots label:has(:checked) .ffcs-chip{
+    background: var(--ffcs-yellow);
+}
+
+/* The checkbox covers its chip, so the whole 44px label takes the press */
+.ffcs-slots label{
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+}
+
+.ffcs-slots input{
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.ffcs-slots label:has(:focus-visible){
+    outline: 2px solid #000;
+    outline-offset: 2px;
+    border-radius: 8px;
+}
+
+.ffcs-error{
+    min-height: 0;
+    margin: -4px 0 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.ffcs-error:empty{
+    display: none;
+}
+
+.ffcs-btns{
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    min-height: 46px;
+}
+
+.ffcs-btn{
+    min-width: 120px;
+    height: 46px;
+    border: 2px solid #000;
+    border-radius: 15px;
+    box-shadow: 4px 4px 0 #000;
+    color: #000;
+    font: inherit;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.ffcs-btn.is-cancel{
+    background: var(--ffcs-red);
+}
+
+.ffcs-btn.is-save{
+    background: var(--ffcs-green);
+}
+
+/* Hidden until a press. Only the open state declares a transition, so closing is instant.
+   Linear, because with an ease-out the 200 ms lane already looks done at ~60ms */
+.lane-edit,
+.ffcs-tab{
+    opacity: 0;
+    visibility: hidden;
+}
+
+.pencil[data-editing] .lane-idle{
+    visibility: hidden;
+}
+
+.pencil[data-editing] .lane-edit,
+.pencil[data-editing] .ffcs-tab{
+    opacity: 1;
+    visibility: visible;
+    transition: opacity var(--t) linear;
+}
+
+@media (prefers-reduced-motion: no-preference){
+    .ffcs-tab{
+        translate: 0 4px;
+    }
+
+    .pencil[data-editing] .ffcs-tab{
+        translate: 0 0;
+        transition: opacity var(--t) linear, translate var(--t) var(--ease-out);
+    }
+
+    /* FFCS-inator's button press: it sinks into its shadow */
+    .ffcs-btn{
+        transition: translate 100ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 100ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .ffcs-btn:active{
+        translate: 2px 2px;
+        box-shadow: 2px 2px 0 #000;
+    }
+}
+
+.pencil-caption{
+    max-width: 56ch;
+    margin-top: 14px;
+    font-size: 16px;
+    color: var(--text-muted);
+}
+
+.pencil-caption a{
+    color: var(--text);
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 4px;
+}
+
+@media (max-width: 640px){
+    .pencil-mat{
+        grid-template-columns: 1fr;
+        gap: 40px;
+        padding: 20px 12px;
+        border-radius: 22px;
+    }
+
+    .ffcs-card{
+        padding: 16px 14px;
+        border-radius: 24px;
+    }
+
+    /* The code goes above the name */
+    .ffcs-row{
+        grid-template-columns: 1rem minmax(0, 1fr) auto 44px;
+        grid-template-areas: "n code slot pencil" "n course slot pencil";
+        row-gap: 0;
+    }
+
+    .ffcs-n{ grid-area: n; }
+    .ffcs-code{ grid-area: code; }
+    .ffcs-course{ grid-area: course; }
+    .ffcs-slot{ grid-area: slot; }
+    .ffcs-pencil{ grid-area: pencil; }
+
+    .lane-shipped .ffcs-subject{
+        display: none;
+    }
+
+    .ffcs-tab{
+        top: -22px;
+        padding: 4px 14px;
+        font-size: 15px;
+    }
+
+    .lane-ms{
+        top: -30px;
+    }
+
+    .ffcs-btn{
+        flex: 1;
+        min-width: 0;
+    }
+}
